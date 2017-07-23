@@ -45,33 +45,4 @@ __PACKAGE__->config(
 # Start the application
 __PACKAGE__->setup();
 
-=encoding utf8
-
-=head1 NAME
-
-CatalystAPI - Catalyst based application
-
-=head1 SYNOPSIS
-
-    script/catalystapi_server.pl
-
-=head1 DESCRIPTION
-
-[enter your description here]
-
-=head1 SEE ALSO
-
-L<CatalystAPI::Controller::Root>, L<Catalyst>
-
-=head1 AUTHOR
-
-Daniel Vinciguerra,,,
-
-=head1 LICENSE
-
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=cut
-
 1;
