@@ -6,6 +6,9 @@ BEGIN { extends 'Catalyst::Model' }
 use List::Util qw/first max/;
 use List::MoreUtils qw/first_index/;
 
+use 5.20.0;
+use experimental 'signatures';
+
 my @data = (
   { id => 1, name => 'User 01', email => 'test1@test.com' },
   { id => 2, name => 'User 02', email => 'test2@test.com' },
@@ -15,44 +18,35 @@ my @data = (
 
 sub _get_data { return @data }
 
+
 sub all {
   return [ map { id => $_->{id}, name => $_->{name} }, @data ];
 }
 
-sub load {
-  my ($self, $id) = @_;
-  return first { $_->{id} == $id } @data;
+sub load ($self, $id) {
+  return first { $self->{id} == $id } @data;
 }
 
-sub create {
-  my ($self, $gift_data) = @_;
-
-  # Verify all fields in place
-  return if !$gift_data->{name} || !$gift_data->{img};
+sub create ($self, $data) {
+  return if !$data->{name} || !$data->{img};
 
   my $next_id = max(map $_->{id}, @data) + 1;
-  push @data, { %$gift_data, id => $next_id };
+  push @data, { %$data, id => $next_id };
   return $#data;
 }
 
-sub update {
-  my ($self, $gift_id, $gift_data) = @_;
-  return
-    if !defined($gift_data->{name})
-    || !defined($gift_data->{id});
+sub update ($self, $id, $data) {
+  return if !defined($data->{name}) || !defined($data->{id});
 
-  my $idx = first_index { $_->{id} == $gift_id } @data;
+  my $idx = first_index { $_->{id} == $id } @data;
   return if !defined($idx);
 
-  $data[$idx] = { %$gift_data, id => $gift_id };
+  $data[$idx] = { %$data, id => $id };
   return 1;
 }
 
-sub remove {
-  my ($self, $gift_id) = @_;
-  my $idx = first_index { $_->{id} == $gift_id } @data;
-
+sub remove ($self, $id) {
+  my $idx = first_index { $self->{id} == $id } @data;
   return if !defined($idx);
-
   splice @data, $idx, 1;
 }
