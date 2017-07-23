@@ -3,29 +3,27 @@ use Moose;
 use namespace::autoclean;
 BEGIN { extends 'Catalyst::Controller::REST' }
 
+use 5.20.0;
+use experimental 'signatures';
+
 __PACKAGE__->config(
-  namespace => 'v1/users',
   action    => { '*' => { Consumes => 'JSON', Path => '' } });
 
 # GET /v1/users
-sub list : GET Args(0) {
-  my ($self, $c) = @_;
+sub list($self, $c) : GET Args(0) {
   $c->stash->{data} = $c->model('Users')->all;
 }
 
 # GET /v1/users/1
-sub retrieve : GET Args(1) {
-  my ($self, $c, $id) = @_;
+sub retrieve($self, $c, $id) : GET Args(1) {
   my $data = $c->model('Users')->load($id);
 
   $c->detach('error', [ 404, "No such user: $id" ]) if !$data;
-  $c->stash->{data} = $data;
+  return $c->stash->{data} = $data;
 }
 
 # POST /v1/users
-sub create : POST Args(0) {
-  my ($self, $c) = @_;
-
+sub create($self, $c) : POST Args(0) {
   my $params = $c->req->body_data;
   my $id     = $c->model('Users')->create($params);
 
@@ -34,30 +32,23 @@ sub create : POST Args(0) {
 }
 
 # POST /v1/users/1
-sub update : POST Args(1) {
-  my ($self, $c, $id) = @_;
+sub update($self, $c, $id) : POST Args(1) {
   my $params = $c->req->body_data;
   my $ok = $c->model('Users')->update($id, $params);
   $c->detach('error', [ 400, "Fail to update user: $id" ]) if !$ok;
 }
 
 # DELETE /v1/users/1
-sub delete : DELETE Args(1) {
-  my ($self, $c, $id) = @_;
+sub delete($self, $c, $id) : DELETE Args(1) {
   my $ok = $c->model('Users')->delete_gift($id);
   $c->detach('error', [ 400, "Invalid user id: $id" ]) if !$ok;
 }
 
-sub end : Private {
-  my ($self, $c) = @_;
+sub end($self, $c) : Private {
   $c->forward($c->view('JSON'));
 }
 
-sub error : Private {
-  my ($self, $c, $code, $reason) = @_;
-  $reason ||= 'Unknown Error';
-  $code   ||= 500;
-
+sub error($self, $c, $code = 500, $reason = 'Unknown Error') : Private {
   $c->res->status($code);
   $c->stash->{data} = { error => $reason };
 }
