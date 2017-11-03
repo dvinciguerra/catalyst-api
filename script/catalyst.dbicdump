@@ -1,0 +1,12 @@
+#!/usr/bin/env perl
+
+use FindBin;
+BEGIN { $ENV{CATALYST_ENV} = lc($ENV{CATALYST_ENV} || 'development') }
+
+# create dbix class schema loader files
+exec "source ${FindBin::Bin}/../env.$ENV{CATALYST_ENV} && perl ${FindBin::Bin}/catalyst.create model DB DBIC::Schema CatalystBase::Schema create=static components=TimeStamp,PassphraseColumn 'dbi:Pg:dbname=catalyst_base_$ENV{CATALYST_ENV};host=localhost' postgres trustable quote_names=1 overwrite_modifications=1"
+
+# remove unused files
+exec "rm -f ${FindBin::Bin}/../lib/Libre/Model/DB.pm.new";
+exec "rm -f ${FindBin::Bin}/../t/model_DB.t";
+exec "rm -f ${FindBin::Bin}/../t/model_DB.t.new";
